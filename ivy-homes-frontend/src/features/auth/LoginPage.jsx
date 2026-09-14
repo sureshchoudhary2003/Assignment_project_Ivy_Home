@@ -34,8 +34,8 @@ export default function LoginPage() {
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-base-200 px-4">
       <div className="card w-full max-w-md bg-base-100 shadow-xl p-8 border border-base-200">
         <h2 className="text-2xl font-bold text-center text-primary mb-1">Ivy Homes Portal</h2>
-        <p className="text-xs text-center text-base-content/60 mb-6">Candidate Assessment Portal (Bengaluru)</p>
-
+        <p className="text-xs text-center text-base-content/60 mb-6">Candidate Assigned City (Gurgaon)</p>
+         <p className="text-xs text-center text-base-content/60 mb-6">Candidate Assigned locality (Sector 56 )</p>
         {error && (
           <div className="alert alert-error text-xs mb-4 py-2 px-3 shadow-sm rounded-lg flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
