@@ -21,10 +21,7 @@ cd ivy-homes-frontend
 npm run build
 npm run preview
 ```
-### 
-```bash
 
-```
 ### Prerequisites
 - Node.js (v18 or higher)
 - npm
