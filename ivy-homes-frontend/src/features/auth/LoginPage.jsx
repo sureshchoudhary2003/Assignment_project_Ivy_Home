@@ -23,6 +23,7 @@ export default function LoginPage() {
   const onSubmit = async (data) => {
     try {
       await dispatch(loginUser(data)).unwrap();
+      dispatch(reloadFavouritesForUser());
       navigate('/listings', { replace: true });
     } catch {
       // Error handled by Redux state

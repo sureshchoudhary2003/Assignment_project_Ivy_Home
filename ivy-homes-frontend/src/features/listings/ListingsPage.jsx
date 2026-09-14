@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchListings } from './listingsSlice';
-import { toggleFavourite } from '../features/favourites/favouritesSlice';
+import { toggleFavourite } from '../favourites/favouritesSlice';
 import { Link } from 'react-router-dom';
 import { Heart, Filter, Bath, BedDouble, Maximize2, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -11,8 +11,7 @@ export default function ListingsPage() {
   const dispatch = useDispatch();
   const { filteredItems, total, offset, loading } = useSelector((state) => state.listings);
   
-  // Read saved items to determine filled state per card
-  const favouriteItems = useSelector((state) => state.favourites.items) || [];
+  const favouriteItems = useSelector((state) => state.favourites?.items) || [];
   const favIds = new Set(favouriteItems.map((f) => f.listing_id || f.id));
 
   const [filters, setFilters] = useState({
@@ -94,7 +93,6 @@ export default function ListingsPage() {
                     <div className="flex justify-between items-start">
                       <span className="badge badge-outline capitalize">{item.locality}</span>
                       
-                      {/* Individual Heart Icon */}
                       <button 
                         type="button"
                         onClick={() => dispatch(toggleFavourite(item))} 
@@ -116,7 +114,7 @@ export default function ListingsPage() {
                       <span className="flex items-center gap-1"><Bath className="w-3.5 h-3.5"/> {item.bathroom} Baths</span>
                       <span className="flex items-center gap-1">
                         <Maximize2 className="w-3.5 h-3.5"/> 
-                        {item.carpet_area_sqft} sqft {item.is_sqm_converted && <span className="text-[10px] text-accent">(normalized)</span>}
+                        {item.carpet_area_sqft || item.carpet_area} sqft
                       </span>
                     </div>
 

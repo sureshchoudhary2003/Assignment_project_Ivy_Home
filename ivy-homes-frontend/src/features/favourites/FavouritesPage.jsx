@@ -1,93 +1,56 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axiosClient from '../../api/axiosClient';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { removeFavourite } from './favouritesSlice';
+import { Link } from 'react-router-dom';
+import { Trash2, Heart, ExternalLink } from 'lucide-react';
 
-// Helper to get current user storage key
-const getStorageKey = () => {
-  const userStr = localStorage.getItem('ivy_user');
-  const email = userStr ? JSON.parse(userStr)?.email : 'guest';
-  return `ivy_favourites_${email}`;
-};
+export default function FavouritesPage() {
+  const dispatch = useDispatch();
+  const items = useSelector((state) => state.favourites.items) || [];
 
-const getLocalFavs = () => {
-  try {
-    return JSON.parse(localStorage.getItem(getStorageKey())) || [];
-  } catch {
-    return [];
-  }
-};
+  return (
+    <div className="container mx-auto p-6 max-w-5xl">
+      <div className="flex items-center gap-3 mb-6">
+        <Heart className="w-7 h-7 text-error fill-error" />
+        <div>
+          <h1 className="text-2xl font-bold">Saved Listings</h1>
+          <p className="text-xs text-base-content/60">Persistent per user session across reloads</p>
+        </div>
+      </div>
 
-const setLocalFavs = (items) => {
-  localStorage.setItem(getStorageKey(), JSON.stringify(items));
-};
-
-export const fetchFavourites = createAsyncThunk('favourites/fetch', async () => {
-  try {
-    // Try server endpoint (might work in some environments/aliases)
-    const res = await axiosClient.get('/v1/favourites');
-    if (res.data?.results) return res.data.results;
-  } catch {
-    // Expected 404 fallback: Read from persistent per-user local storage
-  }
-  return getLocalFavs();
-});
-
-export const addFavourite = createAsyncThunk('favourites/add', async (listing, { getState }) => {
-  const state = getState();
-  // Attempt optional server POST
-  try {
-    await axiosClient.post('/v1/favourites', { id: listing.listing_id || listing.id });
-  } catch {
-    // Ignore 404
-  }
-
-  const current = getLocalFavs();
-  const listingId = listing.listing_id || listing.id;
-  if (!current.some((item) => (item.listing_id || item.id) === listingId)) {
-    const updated = [listing, ...current];
-    setLocalFavs(updated);
-    return updated;
-  }
-  return current;
-});
-
-export const removeFavourite = createAsyncThunk('favourites/remove', async (id) => {
-  try {
-    await axiosClient.delete(`/v1/favourites/${id}`);
-  } catch {
-    // Ignore 404
-  }
-
-  const current = getLocalFavs();
-  const updated = current.filter((item) => (item.listing_id || item.id) !== id);
-  setLocalFavs(updated);
-  return id;
-});
-
-const favouritesSlice = createSlice({
-  name: 'favourites',
-  initialState: { items: [], loading: false },
-  reducers: {
-    clearFavouritesState: (state) => {
-      state.items = [];
-    },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchFavourites.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchFavourites.fulfilled, (state, action) => {
-        state.loading = false;
-        state.items = action.payload;
-      })
-      .addCase(addFavourite.fulfilled, (state, action) => {
-        state.items = action.payload;
-      })
-      .addCase(removeFavourite.fulfilled, (state, action) => {
-        state.items = state.items.filter((item) => (item.listing_id || item.id) !== action.payload);
-      });
-  },
-});
-
-export const { clearFavouritesState } = favouritesSlice.actions;
-export default favouritesSlice.reducer;
+      {items.length === 0 ? (
+        <div className="card bg-base-100 p-12 text-center shadow-sm border border-base-200">
+          <p className="text-base-content/60 mb-4">No saved listings yet.</p>
+          <Link to="/listings" className="btn btn-primary btn-sm mx-auto">Browse Listings</Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {items.map((item) => {
+            const id = item.listing_id || item.id;
+            return (
+              <div key={id} className="card bg-base-100 shadow-sm border border-base-200 p-4 flex flex-row justify-between items-center hover:shadow-md transition">
+                <div>
+                  <h3 className="font-bold text-base">{item.apartment_name || `Listing #${id}`}</h3>
+                  <p className="text-xs text-base-content/60 capitalize">{item.locality || 'Verified Area'}</p>
+                  <p className="text-sm font-semibold text-primary mt-1">₹{(item.price || 0).toLocaleString('en-IN')}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Link to={`/listings/${id}`} className="btn btn-ghost btn-sm btn-square hover:bg-base-200">
+                    <ExternalLink className="w-4 h-4" />
+                  </Link>
+                  <button 
+                    onClick={() => dispatch(removeFavourite(id))}
+                    className="btn btn-ghost btn-sm btn-square text-error hover:bg-error/10"
+                    title="Remove"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
