@@ -1,0 +1,50 @@
+{
+  "api_key": "IVY26-0E3863536CD6",
+  "candidate": {
+    "name": "Suresh Choudhary",
+    "email": "suresh.20233281@mnnit.ac.in",
+    "repo_url": "https://github.com/your-username/ivy-homes-frontend",
+    "demo_url": "https://your-deployed-app.vercel.app"
+  },
+  "answers": {
+    "total_listing_records": 0,
+    "unique_properties": 0,
+    "active_listings": 0,
+    "corrupt_listing_ids": [],
+    "total_monthly_rent": 0,
+    "avg_price_per_sqft_2bhk": 0.0,
+    "costliest_project": { "project_id": "", "price_max_inr": 0 },
+    "listings_last_7_days": 0,
+    "fake_listing_ids": [
+                            "100-6002071",
+                            "MAG-6000212",
+                            "MAG-6000453",
+                            "MAG-6000527",
+                            "MAG-6002834",
+                            "SQU-6001628",
+                            "SQU-6003044",
+                            "ZER-6001341"
+                        ],
+    "projects_with_wrong_listing_count": 0
+  },
+  "findings": [
+        {
+            "endpoint": "/v1/analytics/summary",
+            "category": "missing_endpoint",
+            "documented": "Pre-computed aggregates for your city — handy for a dashboard screen.",
+            "actual": "Returns 404 Not Found. Endpoint does not exist on the server.",
+            "how_found": "Issued GET /v1/analytics/summary; received 404.",
+            "impact": "Frontend must compute analytics aggregates dynamically from retrievable listings.",
+            "evidence": []
+        },
+        {
+            "endpoint": "/v1/favourites",
+            "category": "missing_endpoint",
+            "documented": "Supports GET /v1/favourites, POST /v1/favourites, and DELETE /v1/favourites/{id} for managing user saved listings.",
+            "actual": "Returns 404 Not Found (also tried /v1/favorites, /favorites, /user/favorites).",
+            "how_found": "Issued GET, POST, and DELETE calls to /v1/favourites; all failed with 404.",
+            "impact": "Backend storage is absent; frontend must store favourites in client-side storage scoped per user to satisfy Requirement 4.",
+            "evidence": []
+        }
+        ]
+}
